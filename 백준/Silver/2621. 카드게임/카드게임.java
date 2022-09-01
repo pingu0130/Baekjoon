@@ -56,7 +56,7 @@ public class Main {
 							break loop;
 						}
 					}
-					// 그냥 색만같아
+					// 그냥 색만같아. 플러시구나
 					int max = 0;
 					for (int k = 1; k < 10; k++) {
 						if (num[k] == 1) {
@@ -68,7 +68,7 @@ public class Main {
 			}
 
 		}
-		if (ans == 0) { // 아직도 답이 없어?
+		if (ans == 0) { // 아직도 답이 없어? 스트레이트구나
 			for (int k = 1; k < 6; k++) {
 				if (num[k] == num[k + 1] && num[k + 1] == num[k + 2] && num[k + 2] == num[k + 3]
 						&& num[k + 3] == num[k + 4]) {// 다섯장이 숫자연속하면
