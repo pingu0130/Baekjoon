@@ -19,49 +19,32 @@ public class Main {
 				idx2 = i;
 			}
 		}
-		if (idx1 != 0 && idx2 != 1) {
-			if (idx1 > idx2) {
-				// 1채널부터 조정
-				for (int n = 0; n < idx1; n++)
-					sb.append("1"); // 더 아래있는 채널까지 화살표 내리기
-				for (int n = 0; n < idx1; n++) {
-					sb.append("4"); // 인덱스0까지 올린다
-				}
-				// 2채널 조정
-				for (int n = 0; n < idx2 + 1; n++) { // 뒤에서 한놈이 올라왔기 때문에 인덱스가 밀렸어.
-					sb.append("1");
-				}
-				for (int n = 1; n < idx2 + 1; n++) {
-					sb.append("4");
-				}
-			} else if (idx1 < idx2) {
-				// 1채널부터 조정
-				for (int n = 0; n < idx1; n++)
-					sb.append("1");
-				for (int n = 0; n < idx1; n++) {
-					sb.append("4"); // 인덱스 0까지 올린다.
-				}
-				// 2채널조정
-				for (int n = 0; n < idx2; n++) {
-					sb.append("1");
-				}
-				for (int n = 1; n < idx2; n++) {
-					sb.append("4");
-				}
+		if (idx1 > idx2) {
+			// 1채널부터 조정
+			for (int n = 0; n < idx1; n++)
+				sb.append("1"); // 더 아래있는 채널까지 화살표 내리기
+			for (int n = 0; n < idx1; n++) {
+				sb.append("4"); // 인덱스0까지 올린다
 			}
-			// 1채널이나 2채널 둘중하나가 제자리에 있는 경우..
-		} else if (idx1 == 0) { // 1채널은 제자리야
-			for (int n = 0; n < idx2; n++)
-				sb.append("1"); // 2채널만 조정
-			for (int n = 1; n < idx2; n++) {
+			// 2채널 조정
+			for (int n = 0; n < idx2 + 1; n++) { // 뒤에서 한놈이 올라왔기 때문에 인덱스가 밀렸어.
+				sb.append("1");
+			}
+			for (int n = 1; n < idx2 + 1; n++) {
 				sb.append("4");
 			}
-		} else if (idx2 == 1) { // 2채널은 제자리야
-			// [0]자리에 있는 채널 [2]로내려
-			sb.append("3");
+		} else if (idx1 < idx2) {
+			// 1채널부터 조정
 			for (int n = 0; n < idx1; n++)
-				sb.append("1"); // 1채널만 조정
+				sb.append("1");
 			for (int n = 0; n < idx1; n++) {
+				sb.append("4"); // 인덱스 0까지 올린다.
+			}
+			// 2채널조정
+			for (int n = 0; n < idx2; n++) {
+				sb.append("1");
+			}
+			for (int n = 1; n < idx2; n++) {
 				sb.append("4");
 			}
 		}
