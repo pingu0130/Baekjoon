@@ -1,28 +1,45 @@
-import java.util.Arrays;
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class Main {
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 		int[] arr = new int[9];
-		int sum = 0;
+		
+		//배열에 난쟁이 키 넣기
 		for (int i = 0; i < 9; i++) {
-			arr[i] = sc.nextInt();
-			sum += arr[i];
-		} // 키 다 더하기
-		Loop1: for (int i = 0; i < arr.length; i++) {
-			for (int j = i + 1; j < arr.length; j++) {
-				if ((sum - (arr[i] + arr[j])) == 100) { // 총합-키가 100이면
-					arr[i] = 0;
-					arr[j] = 0;
-					break Loop1;
+			arr[i] = Integer.parseInt(br.readLine());
+		}
+		
+		//모든 경우의 수 파악하기
+		for(int i = 0; i < (1<<9); i++) {
+			int sum = 0;
+			List<Integer> list = new ArrayList<Integer>();
+			//첫번째 난쟁이부터 있는지 확인
+			for (int j = 0; j < 9; j++) {
+				if ((i & (1<<j)) > 0) {
+					sum+=arr[j];
+					list.add(arr[j]);
 				}
 			}
+			if (sum == 100 && list.size()==7) {
+				Collections.sort(list);
+				for (int j = 0 ; j < 7; j++) {
+					bw.write(list.get(j)+"\n");
+				}
+				break;
+			}
 		}
-		Arrays.sort(arr);
-		for (int q = 2; q < 9; q++) { // 앞에는 00이니까 2부터 출력
-			System.out.println(arr[q]);
-		}
-		sc.close();
+		bw.flush();
+		br.close();
+		bw.close();
 	}
 }
