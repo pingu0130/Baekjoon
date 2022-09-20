@@ -1,45 +1,40 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class Main {
-	public static void main(String[] args) throws NumberFormatException, IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-		int[] arr = new int[9];
-		
-		//배열에 난쟁이 키 넣기
-		for (int i = 0; i < 9; i++) {
-			arr[i] = Integer.parseInt(br.readLine());
-		}
-		
-		//모든 경우의 수 파악하기
-		for(int i = 0; i < (1<<9); i++) {
+	static int[] arr, ans;
+	static boolean sel;
+
+	public static void set(int n, int k) {
+		if (sel)
+			return;
+		if (n == 7) {
 			int sum = 0;
-			List<Integer> list = new ArrayList<Integer>();
-			//첫번째 난쟁이부터 있는지 확인
-			for (int j = 0; j < 9; j++) {
-				if ((i & (1<<j)) > 0) {
-					sum+=arr[j];
-					list.add(arr[j]);
-				}
+			for (int i : ans) {
+				sum += i;
 			}
-			if (sum == 100 && list.size()==7) {
-				Collections.sort(list);
-				for (int j = 0 ; j < 7; j++) {
-					bw.write(list.get(j)+"\n");
-				}
-				break;
+			if (sum == 100) {
+				sel = true;
+				Arrays.sort(ans);
+				for (int t : ans)
+					System.out.println(t);
 			}
+			return;
 		}
-		bw.flush();
-		br.close();
-		bw.close();
+		for (int i = k; i < 9; i++) {
+			ans[n] = arr[i];
+			set(n + 1, i + 1);
+		}
+	}
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		arr = new int[9];
+		ans = new int[7];
+		for (int i = 0; i < 9; i++) {
+			arr[i] = sc.nextInt();
+		}
+		set(0, 0);
+
 	}
 }
