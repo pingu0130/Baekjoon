@@ -1,75 +1,60 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.Scanner;
 
 public class Main {
-	static int N;
 	static int[][] arr;
-	static int cnt;
+	static List<Integer> list;
+	static int N, cnt;
+	static int[][] dx = { { -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 } };
 
-	static int[] dr = { 0, -1, 0, 1 };
-	static int[] dc = { -1, 0, 1, 0 };
-
-	public static void main(String[] args) throws NumberFormatException, IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-		StringTokenizer st;
-
-		N = Integer.parseInt(br.readLine());
-		arr = new int[N][N];
-
-		// 배열채우기
-		for (int i = 0; i < N; i++) {
-			String str = br.readLine();
-			for (int j = 0; j < N; j++) {
-				arr[i][j] = str.charAt(j) - '0';
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		N = sc.nextInt();
+		sc.nextLine();
+		arr = new int[N + 2][N + 2];
+		// 정답 저장 list
+		list = new ArrayList<>();
+		for (int i = 1; i < N + 1; i++) {
+			String s = sc.nextLine();
+			int idx = 0;
+			for (int j = 1; j < N + 1; j++) {
+				arr[i][j] = s.charAt(idx) - '0';
+				idx++;
 			}
 		}
+		apt(1, 1);
 
-		List<Integer> list = new ArrayList<Integer>();
-		// 순회하면서 1인 곳을 찾는다
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < N; j++) {
-				if (arr[i][j] == 1) {
-
-					// 확인한 부분은 0으로 바꾼다.
-					arr[i][j] = 0;
-
-					cnt = 1;
-					dfs(i, j);
-					list.add(cnt);
-				}
-			}
-		}
 		Collections.sort(list);
-		bw.write(list.size() + "\n");
+		System.out.println(list.size());
 		for (int i = 0; i < list.size(); i++) {
-			bw.write(list.get(i) + "\n");
+			System.out.println(list.get(i));
 		}
-		bw.flush();
-		br.close();
-		bw.close();
 	}
 
-	static void dfs(int r, int c) {
-		// 팔방참색을 하면서 주변에 1인 있는지 찾아본다.
-		for (int d = 0; d < 4; d++) {
-			int nr = r + dr[d];
-			int nc = c + dc[d];
-			if (nr >= 0 && nr < N && nc >= 0 && nc < N) {
-				if (arr[nr][nc] == 1) {
-					// 중복되면 안되니까 0으로 만들어주기
-					arr[nr][nc] = 0;
-					// 1이있으면 cnt++
-					cnt = cnt + 1;
-					dfs(nr, nc);
+	// DFS
+	// 아파트를 찾는 함수
+	public static void apt(int x, int y) {
+		for (int i = 1; i < N + 1; i++) {
+			for (int j = 1; j < N + 1; j++) {
+				if (arr[i][j] == 1) {
+					cnt++;
+					cntapt(i, j);
+					list.add(cnt);
+					cnt = 0;
 				}
+			}
+		}
+	}
+
+	// 거점아파트 근처의 아파트를 찾는 함수
+	public static void cntapt(int x, int y) {
+		arr[x][y] = 0;
+		for (int i = 0; i < 4; i++) {
+			if (arr[x + dx[i][0]][y + dx[i][1]] == 1) {
+				cnt++;
+				cntapt(x + dx[i][0], y + dx[i][1]);
 			}
 		}
 	}
