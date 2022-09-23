@@ -1,61 +1,89 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
-	static int[][] arr;
-	static List<Integer> list;
-	static int N, cnt;
-	static int[][] dx = { { -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 } };
+	static int N;
+	static int[][] map;
+	static int cnt;
 
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		N = sc.nextInt();
-		sc.nextLine();
-		arr = new int[N + 2][N + 2];
-		// 정답 저장 list
-		list = new ArrayList<>();
-		for (int i = 1; i < N + 1; i++) {
-			String s = sc.nextLine();
-			int idx = 0;
-			for (int j = 1; j < N + 1; j++) {
-				arr[i][j] = s.charAt(idx) - '0';
-				idx++;
-			}
-		}
-		apt(1, 1);
+	static int[] dr = { 0, -1, 0, 1 };
+	static int[] dc = { -1, 0, 1, 0 };
 
-		Collections.sort(list);
-		System.out.println(list.size());
-		for (int i = 0; i < list.size(); i++) {
-			System.out.println(list.get(i));
+	static class Node {
+		int r, c;
+
+		Node(int r, int c) {
+			this.r = r;
+			this.c = c;
 		}
 	}
 
-	// DFS
-	// 아파트를 찾는 함수
-	public static void apt(int x, int y) {
-		for (int i = 1; i < N + 1; i++) {
-			for (int j = 1; j < N + 1; j++) {
-				if (arr[i][j] == 1) {
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+
+		N = Integer.parseInt(br.readLine());
+		map = new int[N][N];
+
+		// 배열채우기
+		for (int i = 0; i < N; i++) {
+			String str = br.readLine();
+			for (int j = 0; j < N; j++) {
+				map[i][j] = str.charAt(j) - '0';
+			}
+		}
+
+		List<Integer> list = new ArrayList<Integer>();
+		Queue<Node> queue = new LinkedList<Node>();
+
+		// 배열돌면서 1를 찾아보고 1이 있으면 큐를 만들어서 큐에 집어넣기
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				cnt = 0;
+				if (map[i][j] == 1) {
+					map[i][j] = 0;
+					// 4방탐색을 하면서 만약 1이 있으면 큐를 만들어서 넣기.
+					queue.add(new Node(i, j));
 					cnt++;
-					cntapt(i, j);
+					
+					while (!queue.isEmpty()) {
+						Node node = queue.poll();
+						for (int d = 0; d < 4; d++) {
+							int nr = node.r + dr[d];
+							int nc = node.c + dc[d];
+							if (nr >= 0 && nr < N && nc >= 0 && nc < N) {
+								if (map[nr][nc] == 1) {
+									map[nr][nc] = 0;
+									cnt++;
+
+									// 거기로 옮겨가서 또 사방탐색을 함
+									queue.add(new Node(nr, nc));
+								}
+								// 주변에 1이 없으면 queue에 넣지 않기 때문에 while문이 끝남
+							}
+						}
+					}
 					list.add(cnt);
-					cnt = 0;
 				}
 			}
 		}
-	}
-
-	// 거점아파트 근처의 아파트를 찾는 함수
-	public static void cntapt(int x, int y) {
-		arr[x][y] = 0;
-		for (int i = 0; i < 4; i++) {
-			if (arr[x + dx[i][0]][y + dx[i][1]] == 1) {
-				cnt++;
-				cntapt(x + dx[i][0], y + dx[i][1]);
-			}
+		Collections.sort(list);
+		bw.write(list.size() + "\n");
+		for (int i = 0; i < list.size(); i++) {
+			bw.write(list.get(i) + "\n");
 		}
+		bw.flush();
+		br.close();
+		bw.close();
 	}
 }
