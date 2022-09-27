@@ -1,75 +1,60 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.StringTokenizer;
+import java.util.Scanner;
 
 public class Main {
-
 	static class Node {
-		int r;
-		int c;
-		int cnt;
-
-		Node(int r, int c, int cnt) {
+		int r, c, cnt;
+		
+		public Node(int r, int c, int cnt) {
 			this.r = r;
 			this.c = c;
 			this.cnt = cnt;
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
-		StringTokenizer st = new StringTokenizer(br.readLine());
-
-		int R = Integer.parseInt(st.nextToken());
-		int C = Integer.parseInt(st.nextToken());
-		int[][] maze = new int[R + 2][C + 2];
-		boolean[][] visited = new boolean[R + 2][C + 2];
-		int ans = Integer.MAX_VALUE;
-
-		// 미로배열 채우기
-		for (int i = 1; i <= R; i++) {
-			String str = br.readLine();
-			for (int j = 1; j <= C; j++) {
-				maze[i][j] = str.charAt(j-1)-'0';
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N, M;
+		int[][] arr;
+		boolean[][] cheak;
+		int[][] dx = { { -1, 0 }, { 1, 0 }, { 0, 1 }, { 0, -1 } };
+		N = sc.nextInt();
+		M = sc.nextInt();
+		sc.nextLine();
+		cheak = new boolean[N + 2][M + 2];
+		arr = new int[N + 2][M + 2];
+		for (int i = 1; i < N + 1; i++) {
+			String s = sc.nextLine();
+			for (int j = 0; j < M; j++) {
+				arr[i][j + 1] = s.charAt(j) - '0';
 			}
 		}
-		
+		// BFS
 		Queue<Node> queue = new LinkedList<>();
-		int[] dr = { -1, 0, 1, 0 };
-		int[] dc = { 0, 1, 0, -1 };
-
-		// 처음 시작은 1,1부터
-		Node node = new Node(1, 1, 1);
-		visited[1][1] = true;
-		queue.add(node);
-
-		loop : while (!queue.isEmpty()) {
+		queue.add(new Node(1, 1, 1));
+		cheak[1][1] = true;
+		while (!queue.isEmpty()) {
 			Node n = queue.poll();
-			
-			//사방탐색을 시작
-			
-			for(int i = 0; i < 4; i++) {
-				int nr = n.r + dr[i];
-				int nc = n.c + dc[i];
-				if(maze[nr][nc] == 1 && visited[nr][nc] == false) {
-					if(nr == R && nc == C) {
-						ans = Math.min(ans, n.cnt+1);
-					}
-					
-					visited[nr][nc] = true;
-					Node newNode = new Node(nr, nc, n.cnt+1);
-					queue.add(newNode);
+			// 끝까지 왔으니까 끝
+			if (n.r == N && n.c == M) {
+				System.out.println(n.cnt);
+				break;
+			}
+			boolean flag = false;
+			// 사방탐색으로 길찾기
+			for (int i = 0; i < 4; i++) {
+				// 옆칸이 1이면 이동하기
+				if (!cheak[n.r + dx[i][0]][n.c + dx[i][1]] && arr[n.r + dx[i][0]][n.c + dx[i][1]] == 1) {
+					cheak[n.r + dx[i][0]][n.c + dx[i][1]] = true;
+					flag = true;
+					queue.add(new Node(n.r + dx[i][0], n.c + dx[i][1], n.cnt + 1));
 				}
 			}
 		}
-		System.out.println(ans);
+		System.out.println();
+
+		sc.close();
 	}
 }
