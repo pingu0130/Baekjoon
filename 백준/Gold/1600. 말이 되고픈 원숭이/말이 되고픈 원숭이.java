@@ -1,79 +1,127 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class Main {
-	static class Node {
-		int r, c, cnt, j;
 
-		public Node(int r, int c, int cnt, int j) {
+	static class Node {
+		int r;
+		int c;
+		int cnt;
+		int k;
+
+		Node(int r, int c, int cnt, int k) {
 			this.r = r;
 			this.c = c;
 			this.cnt = cnt;
-			this.j = j;
+			this.k = k;
 		}
+
 	}
 
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		int N, M, K;
-		int[][] arr;
-		boolean[][][] cheak;
-		int[][] dx = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-		int[][] jump = { { -1, 2 }, { -2, -1 }, { -2, 1 }, { -1, -2 }, { 1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 } };
-		K = sc.nextInt();
-		M = sc.nextInt();
-		N = sc.nextInt();
-		sc.nextLine();
-		cheak = new boolean[N][M][K + 1];
-		arr = new int[N][M];
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				arr[i][j] = sc.nextInt();
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int K = Integer.parseInt(br.readLine());
+
+		st = new StringTokenizer(br.readLine());
+
+		int W = Integer.parseInt(st.nextToken());
+		int H = Integer.parseInt(st.nextToken());
+
+		int[][] map = new int[H][W];
+		boolean[][][] check = new boolean[K+1][H][W];
+		
+
+		for (int i = 0; i < H; i++) {
+			st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < W; j++) {
+				map[i][j] = Integer.parseInt(st.nextToken());
 			}
 		}
-		// BFS
-		int ans = -1;
+
 		Queue<Node> queue = new LinkedList<>();
-		queue.add(new Node(0, 0, 0, 0));
-		cheak[0][0][0] = true;
-		while (!queue.isEmpty()) {
+		int[] monkeyR = { -1, 0, 1, 0 };
+		int[] monkeyC = { 0, 1, 0, -1 };
+		int[] horseR = { -2, -2, -1, 1, 2, 2, 1, -1 };
+		int[] horseC = { -1, 1, 2, 2, 1, -1, -2, -2 };
+		int ans = -1;
+		
+		queue.add(new Node(0, 0, 0, K));
+		
+		while(!queue.isEmpty()) {
+			
 			Node n = queue.poll();
-			if (n.r == N - 1 && n.c == M - 1) {
+			
+			if (n.r == H-1 && n.c == W-1) {
 				ans = n.cnt;
 				break;
 			}
-			// 점프불가
-			if (n.j >= K) {
-				for (int i = 0; i < 4; i++) {
-					if (n.r + dx[i][0] >= 0 && n.r + dx[i][0] < N && n.c + dx[i][1] >= 0 && n.c + dx[i][1] < M)
-						if (arr[n.r + dx[i][0]][n.c + dx[i][1]] == 0 && !cheak[n.r + dx[i][0]][n.c + dx[i][1]][n.j]) {
-							cheak[n.r + dx[i][0]][n.c + dx[i][1]][n.j] = true;
-							queue.add(new Node(n.r + dx[i][0], n.c + dx[i][1], n.cnt + 1, n.j));
-						}
+			
+			//말처럼 뛸 수 있다면
+			if (n.k > 0) {
+				
+				//K를 썼을 경우
+				for(int i = 0; i < 8; i++) {
+					int nr = n.r + horseR[i];
+					int nc = n.c + horseC[i];
+					
+					if(nr < 0 || nr >= H || nc < 0 || nc >= W)
+						continue;
+					
+					if(map[nr][nc] == 1) continue;
+					
+					if (map[nr][nc] == 0 && check[n.k-1][nr][nc] == false) {
+						check[n.k-1][nr][nc] = true; //방문 표시
+						queue.add(new Node(nr, nc, n.cnt+1, n.k-1));
+					}
 				}
-			} else {
-				// k번 아래면 점프가능
-				// 점프하거나, 안하거나
-				for (int i = 0; i < 8; i++) {
-					if (n.r + jump[i][0] >= 0 && n.r + jump[i][0] < N && n.c + jump[i][1] >= 0 && n.c + jump[i][1] < M)
-						if (arr[n.r + jump[i][0]][n.c + jump[i][1]] == 0
-								&& !cheak[n.r + jump[i][0]][n.c + jump[i][1]][n.j + 1]) {
-							cheak[n.r + jump[i][0]][n.c + jump[i][1]][n.j + 1] = true;
-							queue.add(new Node(n.r + jump[i][0], n.c + jump[i][1], n.cnt + 1, n.j + 1));
-						}
+				
+				//안 썼을 경우
+				for(int i = 0; i < 4; i++) {
+					int nr = n.r + monkeyR[i];
+					int nc = n.c + monkeyC[i];
+					
+					if(nr < 0 || nr >= H || nc < 0 || nc >= W)
+						continue;
+					
+					if(map[nr][nc] == 1) continue;
+					
+					if (map[nr][nc] == 0 && check[n.k][nr][nc] == false) {
+						check[n.k][nr][nc] = true;
+						queue.add(new Node(nr, nc, n.cnt+1, n.k));
+					}
 				}
-				for (int i = 0; i < 4; i++) {
-					if (n.r + dx[i][0] >= 0 && n.r + dx[i][0] < N && n.c + dx[i][1] >= 0 && n.c + dx[i][1] < M)
-						if (arr[n.r + dx[i][0]][n.c + dx[i][1]] == 0 && !cheak[n.r + dx[i][0]][n.c + dx[i][1]][n.j]) {
-							cheak[n.r + dx[i][0]][n.c + dx[i][1]][n.j] = true;
-							queue.add(new Node(n.r + dx[i][0], n.c + dx[i][1], n.cnt + 1, n.j));
-						}
+			}
+			
+			else {
+				//말처럼 뛸 수 없으니 그냥 가는 수 밖에
+				for(int i = 0; i < 4; i++) {
+					int nr = n.r + monkeyR[i];
+					int nc = n.c + monkeyC[i];
+					
+					if(nr < 0 || nr >= H || nc < 0 || nc >= W)
+						continue;
+					
+					if(map[nr][nc] == 1) continue;
+					
+					if (map[nr][nc] == 0 && check[n.k][nr][nc] == false) {
+						check[n.k][nr][nc] = true;
+						queue.add(new Node(nr, nc, n.cnt+1, n.k));
+					}
 				}
 			}
 		}
-		System.out.println(ans);
-
-		sc.close();
+		bw.write(ans + "");
+		bw.flush();
+		br.close();
+		bw.close();
 	}
 }
