@@ -1,13 +1,21 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class Main {
-	static class Node {
-		int r, c, cnt;
-		boolean wall;
 
-		public Node(int r, int c, int cnt, boolean wall) {
+	static class Node {
+		int r;
+		int c;
+		int cnt;
+		int wall;
+
+		Node(int r, int c, int cnt, int wall) {
 			this.r = r;
 			this.c = c;
 			this.cnt = cnt;
@@ -15,77 +23,82 @@ public class Main {
 		}
 	}
 
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		int N, M;
-		int[][] arr;
-		boolean[][] cheakno;
-		boolean[][] cheakyes;
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-		int[][] dx = { { -1, 0 }, { 1, 0 }, { 0, 1 }, { 0, -1 } };
-		N = sc.nextInt();
-		M = sc.nextInt();
-		sc.nextLine();
-		cheakno = new boolean[N + 2][M + 2];
-		cheakyes = new boolean[N + 2][M + 2];
-		arr = new int[N + 2][M + 2];
-		for (int i = 0; i < N + 2; i++) {
-			for (int j = 0; j < M + 2; j++) {
-				arr[0][j] = 2;
-				arr[N + 1][j] = 2;
-				arr[i][0] = 2;
-				arr[i][M + 1] = 2;
+		StringTokenizer st = new StringTokenizer(br.readLine());
+
+		int R = Integer.parseInt(st.nextToken());
+		int C = Integer.parseInt(st.nextToken());
+		int[][] maze = new int[R][C];
+		boolean[][] visited = new boolean[R][C];
+		boolean[][] bVisited = new boolean[R][C]; // 부신 벽 표시하는 것
+
+		// 배열채우기
+		for (int i = 0; i < R; i++) {
+			String str = br.readLine();
+			for (int j = 0; j < C; j++) {
+				maze[i][j] = str.charAt(j) - '0';
 			}
 		}
-		for (int i = 1; i < N + 1; i++) {
-			String s = sc.nextLine();
-			for (int j = 0; j < M; j++) {
-				arr[i][j + 1] = s.charAt(j) - '0';
-			}
-		}
-		// BFS
-		int ans = -1;
+
 		Queue<Node> queue = new LinkedList<>();
-		queue.add(new Node(1, 1, 1, false));
-		cheakno[1][1] = true;
-		cheakyes[1][1] = true;
+		int[] dr = { -1, 0, 1, 0 };
+		int[] dc = { 0, 1, 0, -1 };
+
+		Node node = new Node(0, 0, 1, 0);
+		queue.add(node);
+		visited[0][0] = true;
+		int ans = Integer.MAX_VALUE;
+
 		while (!queue.isEmpty()) {
 			Node n = queue.poll();
-			// 끝까지 왔으니까 끝
-			if (n.r == N && n.c == M) {
-				ans = n.cnt;
+
+			if (n.r == R - 1 && n.c == C - 1) {
+				ans = Math.min(ans, n.cnt);
 				break;
 			}
-			// 사방탐색으로 길찾기
+
+			// 사방탐색
 			for (int i = 0; i < 4; i++) {
-				if (arr[n.r + dx[i][0]][n.c + dx[i][1]] == 0) {
-					// 가본적 없으면서 벽 뿌숨
-					if (!cheakyes[n.r + dx[i][0]][n.c + dx[i][1]] && n.wall) {
-						cheakyes[n.r + dx[i][0]][n.c + dx[i][1]] = true;
-						// n.wall로 내 상태를 계속 유지할 수 있다.
-						queue.add(new Node(n.r + dx[i][0], n.c + dx[i][1], n.cnt + 1, n.wall));
-					}
-				}
-				// 벽 부순적이 없으면
-				if (!n.wall) {
-					// 안가본 1이면 벽부수면서
-					if (arr[n.r + dx[i][0]][n.c + dx[i][1]] == 1 && !cheakyes[n.r + dx[i][0]][n.c + dx[i][1]]) {
-						cheakyes[n.r + dx[i][0]][n.c + dx[i][1]] = true;
-						// 벽을 부셨으면 true로 바꿔준다.
-						queue.add(new Node(n.r + dx[i][0], n.c + dx[i][1], n.cnt + 1, true));
-					} else {
-						// 가본적 없으면서 벽 안부순자식
-						if (arr[n.r + dx[i][0]][n.c + dx[i][1]] == 0 && !cheakno[n.r + dx[i][0]][n.c + dx[i][1]]) {
-							cheakno[n.r + dx[i][0]][n.c + dx[i][1]] = true;
-							// n.wall로 내 상태를 계속 유지할 수 있다.
-							queue.add(new Node(n.r + dx[i][0], n.c + dx[i][1], n.cnt + 1, n.wall));
+				int nr = n.r + dr[i];
+				int nc = n.c + dc[i];
+
+				if (nr < 0 || nr >= R || nc < 0 || nc >= C)
+					continue;
+
+				if (maze[nr][nc] == 0) {
+					// 부순 적이 없으면 (능력 0)
+					if (n.wall == 0) {
+						if (visited[nr][nc] == false) {
+							visited[nr][nc] = true; // 방문체크 후 큐에 넣어주기
+							Node newNode = new Node(nr, nc, n.cnt + 1, n.wall);
+							queue.add(newNode);
+						}
+					} else { // 벽을 부순 적이 있으면(능력x)
+						if (visited[nr][nc] == false && bVisited[nr][nc] == false) {
+							bVisited[nr][nc] = true;
+							Node newNode = new Node(nr, nc, n.cnt + 1, 1);
+							queue.add(newNode);
+
 						}
 					}
 				}
+
+				// 벽이 있고 부순 적이 없으면(능력 0)
+				if (maze[nr][nc] == 1 && n.wall == 0) {
+					bVisited[nr][nc] = true;
+					Node newNode = new Node(nr, nc, n.cnt + 1, 1);
+					queue.add(newNode);
+				}
 			}
 		}
-		System.out.println(ans);
 
-		sc.close();
+		ans = ans == Integer.MAX_VALUE ? -1 : ans;
+		bw.write(ans + "");
+		bw.flush();
+		br.close();
+		bw.close();
 	}
 }
